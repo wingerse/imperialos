@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS += -m32 -O2 -masm=intel -std=gnu11 \
 -Werror -Wall -Wextra -Wconversion \
--nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-pic -fno-strict-aliasing\
+-nostdlib -ffreestanding -fno-pic\
 -Wno-unused-function -Wno-unused-variable
 
 src_asm = $(shell find src -name '*.nasm' -print | paste -s -)
@@ -12,8 +12,11 @@ $(shell mkdir -p bin)
 obj_asm = $(patsubst src/%.nasm,obj/%.asm.o,$(src_asm))
 obj_c   = $(patsubst src/%.c,obj/%.o,$(src_c))
 
-bin/kernel: $(obj_asm) $(obj_c) kernel.ld
+bin/kernel: $(obj_asm) $(obj_c) kernel.ld bin/fs
 	$(CC) $(CFLAGS) -o bin/kernel $(obj_asm) $(obj_c) -T kernel.ld -Wl,--oformat,binary,-m,elf_i386 -lgcc
+
+bin/fs:
+	echo "Hello world" > bin/fs
 
 obj/interrupts/handlers.o: src/interrupts/handlers.c
 	mkdir -p $(@D)
@@ -32,16 +35,8 @@ run: bin/kernel
 
 .PHONY: run
 .PHONY: clean
-.PHONY: clean-debug
-.PHONY: clean-release
 
 clean:
 	rm -rf obj/
 
-clean-debug:
-	rm -rf obj/debug/
-
-clean-release:
-	rm -rf obj/release/
-
--include $(obj:.o=.d)
+-include $(obj_c:.o=.d)

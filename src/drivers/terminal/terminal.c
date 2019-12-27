@@ -5,6 +5,7 @@
 #include "../timer/timer.h"
 #include <stdbool.h>
 #include "../../libc/string.h"
+#include "../ata/ata.h"
 
 #define VGA_ADDRESS       0x3d4
 #define VGA_DATA          0x3d5
@@ -126,14 +127,25 @@ static void got_input(void)
     if (has_newline) {
         input_buffer[len-1] = '\0';
     }
-    if (strcmp(input_buffer, "echo") == 0) {
-        kprintf("echo\n");
+    if (strncmp(input_buffer, "echo ", 5) == 0) {
+        kprintf(input_buffer+5);
+        putc('\n');
     } else if (strcmp(input_buffer, "shutdown") == 0) {
         kprintf("Oh no you don't ;)\n");
     } else if (strcmp(input_buffer, "ls") == 0) {
         kprintf("emperor\naiman\n");
     } else if (strcmp(input_buffer, "pwd") == 0) {
         kprintf("universe\n");
+    } else if (strcmp(input_buffer, "read") == 0) {
+        char buf[11];
+        int err = ata_pio_read(0, buf, 11);
+        if (err) {
+            kprintf("Error reading hard disk\n");
+        } else {
+            for (int i = 0; i < 11; i++) {
+                putc(buf[i]);
+            }
+        }
     } else {
         kprintf("%s: command found but I will not execute it (:\n", input_buffer);
     }

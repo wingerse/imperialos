@@ -63,7 +63,6 @@ int ata_pio_read(size_t offset, void *dst, size_t count)
     size_t end_sector = (offset + count) / SECTOR_SIZE;
     size_t end_sector_offset = (offset + count) % SECTOR_SIZE;
 
-
     char buffer[SECTOR_SIZE];
 
     char *_dst = dst;

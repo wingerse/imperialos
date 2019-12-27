@@ -1,5 +1,5 @@
 #pragma once
 
 enum {
-    EIO
+    EIO = 1,
 };
