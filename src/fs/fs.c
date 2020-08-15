@@ -1,1 +1,0 @@
-#define TABLE_OFFSET (512+1024*100)
